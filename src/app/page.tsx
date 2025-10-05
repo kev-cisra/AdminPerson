@@ -1,13 +1,18 @@
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+'use client';
 
-export default function Home() {
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+
+export default function HomePage() {
+  const { ready, isAuthenticated } = useAuth();
   const router = useRouter();
-  const params = useSearchParams();
-  
 
-  return (
-    <div>
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi facere, quisquam eveniet nulla sunt praesentium vitae porro eum pariatur laboriosam totam nam similique eius voluptatum itaque dolor animi officiis est.
-    </div>
-  );
+  useEffect(() => {
+    if (!ready) return;                // espera a leer localStorage
+    router.replace(isAuthenticated ? '/dashboard' : '/login');
+  }, [ready, isAuthenticated, router]);
+
+  // UI mínima mientras se decide
+  return <p className="p-6">Redirigiendo…</p>;
 }
