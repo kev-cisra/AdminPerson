@@ -1,18 +1,19 @@
-'use client';
+"use client";
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '../hooks/useAuth';
 
 export default function HomePage() {
-  const { ready, isAuthenticated } = useAuth();
-  const router = useRouter();
+	const { loading, isAuthenticated } = useAuth();
+	const router = useRouter();
 
-  useEffect(() => {
-    if (!ready) return;                // espera a leer localStorage
-    router.replace(isAuthenticated ? '/dashboard' : '/login');
-  }, [ready, isAuthenticated, router]);
+	useEffect(() => {
+		// esperar a que termine la inicialización del auth
+		if (loading) return;
+		router.replace(isAuthenticated ? '/dashboard' : '/login');
+	}, [loading, isAuthenticated, router]);
 
-  // UI mínima mientras se decide
-  return <p className="p-6">Redirigiendo…</p>;
+	// UI mínima mientras se decide
+	return <p className="p-6">Redirigiendo…</p>;
 }

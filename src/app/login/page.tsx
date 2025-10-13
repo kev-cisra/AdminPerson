@@ -1,11 +1,36 @@
 "use client"
-import React from 'react';
-import { Form, Input, Button, Card } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Form, Input, Button, Card, Spin } from 'antd';
+import { useRouter } from 'next/navigation';
+import { useToast } from '../../contexts/ToastContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 const LoginForm: React.FC = () => {
-  const onFinish = (values: any) => {
-    // Aquí puedes manejar el login
-    console.log('Success:', values);
+  const { showSuccess, showError, showInfo } = useToast();
+  const { login, loading, isAuthenticated } = useAuthContext();
+  const router = useRouter();
+
+  // Redirigir si ya está autenticado
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, router]);
+
+  const onFinish = async (values: { email: string; password: string }) => {
+    try {
+      showInfo("Iniciando sesión...", 2000);
+      
+      const user = await login(values);
+      console.log(user);
+      
+      showSuccess(`¡Bienvenido ${user.nombre || user.email}!`, 4000);
+      
+      // Redirigir al dashboard
+      router.push('/dashboard');
+    } catch (error: any) {
+      showError(error.message || "Error al iniciar sesión", 5000);
+    }
   };
 
   return (
@@ -34,8 +59,14 @@ const LoginForm: React.FC = () => {
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" block>
-              Ingresar
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              block 
+              loading={loading}
+              disabled={loading}
+            >
+              {loading ? 'Iniciando sesión...' : 'Ingresar'}
             </Button>
           </Form.Item>
         </Form>
